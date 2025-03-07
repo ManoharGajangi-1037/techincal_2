@@ -1,6 +1,9 @@
 use std::collections::VecDeque;
 use std::cmp::Ordering;
 use rand::Rng;
+
+//Here we are storing the order as struct to matching scenarios and sorting the prices and time 
+//we can have epoch time in place of timestamp which would give exact time.
 #[derive(Debug, Clone)]
 struct Order {
     id: usize,
@@ -9,6 +12,8 @@ struct Order {
     timestamp: u64,
 }
 
+//Here am using double ended queue to add and remove orders 
+//why double ended queue? we can easily extract the higher priority order in less time as each and every we add the order we are going to sort.(similar to pq discussed in the interview)
 #[derive(Debug)]
 struct OrderBook {
     buy_orders: VecDeque<Order>,
@@ -17,6 +22,8 @@ struct OrderBook {
 }
 
 impl OrderBook {
+
+    //Initialisation of the order book ,creating 2 queues and initalizing the order id with 1 
     fn new() -> Self {
         Self {
             buy_orders: VecDeque::new(),
@@ -24,7 +31,8 @@ impl OrderBook {
             next_order_id: 1,
         }
     }
-
+    
+    //Creating the struct based on the price ,quantity,time stamp
     fn add_order(&mut self, price: f64, quantity: f64, is_buy: bool, timestamp: u64) {
         let order = Order {
             id: self.next_order_id,
@@ -33,7 +41,7 @@ impl OrderBook {
             timestamp,
         };
         self.next_order_id += 1;
-
+        //Here we will be adding the orders into the queue and sorting will happen based on the prices and if prices are equal then we will sort with time
         if is_buy {
             self.buy_orders.push_back(order);
             self.buy_orders.make_contiguous().sort_by(|a, b| match b.price.partial_cmp(&a.price).unwrap() {
@@ -47,10 +55,11 @@ impl OrderBook {
                 other => other,
             });
         }
-
+        //Each and every time you added a order we have to check the order book and match if any 
         self.match_orders();
     }
 
+    //This is to modify the order ,we can further increase the functionality to change price of the order based upon the quantity and price 
     fn modify_order(&mut self, order_id: usize, new_quantity: f64) {
         for order in self.buy_orders.iter_mut().chain(self.sell_orders.iter_mut()) {
             if order.id == order_id {
@@ -59,7 +68,9 @@ impl OrderBook {
             }
         }
     }
-
+   //here we will be matching the best buy order for best sell order if and only if the buy order price is greater than sell order price,
+   //Logic for matching and partial  matching is done and we can also increase or decrease current price based upon this order matchings
+   //min(buyorder.quantity,sellorder.quantity) gives the exact amount of order that can match 
     fn match_orders(&mut self) {
         while let (Some(mut buy_order), Some(mut sell_order)) = (self.buy_orders.front().cloned(), self.sell_orders.front().cloned()) {
             if buy_order.price >= sell_order.price {
@@ -84,6 +95,8 @@ impl OrderBook {
     }
 }
 
+
+//for generating random bulk orders 
 fn create_bulk_orders(order_book: &mut OrderBook, num_orders: usize) {
     let mut rng = rand::thread_rng();
     let base_price = 45700.0;
