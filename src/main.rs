@@ -42,6 +42,7 @@ impl OrderBook {
         };
         self.next_order_id += 1;
         //Here we will be adding the orders into the queue and sorting will happen based on the prices and if prices are equal then we will sort with time
+        //logic::Buy order prices are sorted in descending order and sell order prices are sorted in ascending order which makes orders to fill faster 
         if is_buy {
             self.buy_orders.push_back(order);
             self.buy_orders.make_contiguous().sort_by(|a, b| match b.price.partial_cmp(&a.price).unwrap() {
