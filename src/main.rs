@@ -1,7 +1,7 @@
 use rand::Rng;
+use serde_json::Value;
 use std::cmp::Ordering;
 use std::collections::VecDeque;
-
 //Here we are storing the order as struct to matching scenarios and sorting the prices and time
 //we can have epoch time in place of timestamp which would give exact time.
 #[derive(Debug, Clone)]
@@ -19,7 +19,7 @@ struct OrderBook {
     buy_orders: VecDeque<Order>,
     sell_orders: VecDeque<Order>,
     next_order_id: usize,
-    current_price:f64,
+    current_price: f64,
 }
 
 impl OrderBook {
@@ -146,7 +146,7 @@ fn create_bulk_orders(order_book: &mut OrderBook, num_orders: usize) {
 }
 #[tokio::main]
 async fn main() {
-    let mut order_book = OrderBook::new();
+    let mut order_book = OrderBook::new().await;
 
     // order_book.add_order(101.0, 5.0, true, 1);
     // order_book.add_order(100.5, 3.0, true, 2);
@@ -160,7 +160,7 @@ async fn main() {
     // order_book.add_order(45720.0, 1.5, false, 3);
     // order_book.add_order(45750.0, 2.0, false, 4);
     create_bulk_orders(&mut order_book, 10);
-    // println!("Remaining Buy Orders: {:?}", order_book.buy_orders);
-    // println!("Remaining Sell Orders: {:?}", order_book.sell_orders);
+    println!("Remaining Buy Orders: {:?}", order_book.buy_orders);
+    println!("Remaining Sell Orders: {:?}", order_book.sell_orders);
     println!("Current BTC/USDT Price: {}", order_book.current_price);
 }
