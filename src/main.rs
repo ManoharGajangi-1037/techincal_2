@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 use std::cmp::Ordering;
-
+use rand::Rng;
 #[derive(Debug, Clone)]
 struct Order {
     id: usize,
@@ -84,6 +84,16 @@ impl OrderBook {
     }
 }
 
+fn create_bulk_orders(order_book: &mut OrderBook, num_orders: usize) {
+    let mut rng = rand::thread_rng();
+    let base_price = 45700.0;
+    for i in 0..num_orders {
+        let price = base_price + rng.gen_range(-100..100) as f64;
+        let quantity = rng.gen_range(0.1..5.0);
+        let is_buy = rng.gen_bool(0.5);
+        order_book.add_order(price, quantity, is_buy, i as u64);
+    }
+}
 fn main() {
     let mut order_book = OrderBook::new();
 
@@ -92,12 +102,13 @@ fn main() {
     // order_book.add_order(100.0, 4.0, false, 3);
     // order_book.add_order(99.5, 2.0, false, 4);
     
-    order_book.add_order(45700.0, 1.0, true, 1);
-    order_book.add_order(45650.0, 2.5, true, 2);
-    order_book.add_order(45600.0, 1.0, true, 1);
-    order_book.add_order(45710.0, 1.0, false, 2);
-    order_book.add_order(45720.0, 1.5, false, 3);
-    order_book.add_order(45750.0, 2.0, false, 4);
+    // order_book.add_order(45700.0, 1.0, true, 1);
+    // order_book.add_order(45650.0, 2.5, true, 2);
+    // order_book.add_order(45600.0, 1.0, true, 1);
+    // order_book.add_order(45710.0, 1.0, false, 2);
+    // order_book.add_order(45720.0, 1.5, false, 3);
+    // order_book.add_order(45750.0, 2.0, false, 4);
+    create_bulk_orders(&mut order_book, 10);
     println!("Remaining Buy Orders: {:?}", order_book.buy_orders);
     println!("Remaining Sell Orders: {:?}", order_book.sell_orders);
 }
